@@ -1,0 +1,4 @@
+h2 Upload file containing emails of users to get the scores
+= form_tag('/respond_scores.json',multipart: true) do
+  = file_field_tag :file
+  = submit_tag "Get Scores"

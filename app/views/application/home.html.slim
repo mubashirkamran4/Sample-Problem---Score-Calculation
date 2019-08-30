@@ -1,0 +1,50 @@
+.text-center
+  - if current_user
+    h1 = current_user.full_name
+    li= link_to('<span class="glyphicon glyphicon-lock"></span> Get Scores'.html_safe, get_scores_path)
+  - else
+    h1 Home
+- flash.each do |key, value|
+  = content_tag :div, value, class: "flash #{key}"
+
+
+- if current_user
+  h4 Your Score: 
+  =current_user.score
+  br
+  br
+
+  - if current_user.can_invite?
+    - users_with_invite_status = User.users_with_invitation_status_except_current(current_user.id)
+    - invite_accepted_by_current_user = users_with_invite_status[:invite_accepted_by_current_user]
+    - if invite_accepted_by_current_user.count > 0
+      h4 Your invite was accepted by these users
+      ul
+        - users_with_invite_status[:invite_accepted_by_current_user].each do |user|
+          li 
+            = user.full_name
+    br
+    - invite_accepted_by_other_users = users_with_invite_status[:invite_accepted_by_other_users]
+    - if invite_accepted_by_other_users.count > 0
+      h4 These users have invitation accepted
+      ul
+        - users_with_invite_status[:invite_accepted_by_other_users].each do |user|
+          li
+            = user.full_name
+    br
+    - can_try_invite = users_with_invite_status[:can_try_invite]
+    - if can_try_invite.count > 0
+      h4 You can send invite to these users for increasing your score
+      ul
+        - users_with_invite_status[:can_try_invite].each do |user|
+          li
+            = user.full_name
+            = link_to("          Invite", send_invite_path(invitee_user: user))
+  - else
+    - if current_user.inviter
+      h4 You have an invitation pending: 
+      = link_to("Accept Invite By ", accept_invite_path)
+      = current_user.inviter.full_name
+    - else
+      h4 You have not been invited by someone yet
+
